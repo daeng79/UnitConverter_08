@@ -1,0 +1,42 @@
+---
+description: ECB 레이어·디렉터리·의존 방향
+globs: src/**,tests/**,UnitConverter.py
+alwaysApply: false
+---
+
+# Architecture — ECB
+
+## 디렉터리
+
+```
+src/
+  entity/     # 순수 변환·파싱·포맷 (unit_converter, constants)
+  control/    # use-case 조율 (M1 CLI 연동 시)
+  boundary/   # CLI·stdout/stdin 어댑터
+UnitConverter.py   # boundary 진입점 (baseline, 후속 연동)
+tests/
+  entity/     # Logic Track — parse_input, convert_all 등
+  boundary/   # UI Track — main(), capsys
+```
+
+## 의존 방향
+
+```
+boundary → control → entity
+```
+
+- **entity**: I/O·print·input 금지
+- **boundary**: entity/control 호출만, 변환 알고리즘 소유 금지
+- **control**: entity 조합, boundary에 결과 전달
+
+## import 호환
+
+- GREEN 전: `from unit_converter import …` (`src/unit_converter.py` shim → `entity`)
+- REFACTOR 후: `from entity.unit_converter import …` 권장
+
+## 테스트 Track
+
+| Track | Layer | 테스트 위치 |
+|-------|-------|------------|
+| Logic | entity | `tests/entity/` |
+| UI | boundary | `tests/boundary/` |
