@@ -3,7 +3,7 @@
 **RED 1묶음**(Test ID 1개)당 `src/` **최소 구현**만 추가한다.  
 **1 커밋 = 1 RED 묶음** — `git commit`은 **사용자 명시 요청 시만**.
 
-**프로젝트:** UnitConverter_09 — `src/` (Logic) · `UnitConverter.py` (boundary, GREEN 후속)
+**프로젝트:** UnitConverter_08 — `src/` (Logic) · `UnitConverter.py` (boundary, GREEN 후속)
 
 ## 1. 역할·범위
 
