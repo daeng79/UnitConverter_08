@@ -1,0 +1,40 @@
+---
+description: UnitConverter_08 핵심 원칙·SSOT·AI 규칙
+alwaysApply: true
+---
+
+# UnitConverter_08 — Principles
+
+## 프로젝트
+
+- **공식 명칭**: `UnitConverter_08` (로컬 디렉터리명과 무관)
+- 길이 단위 변환 CLI — meter / feet / yard, 입력 `unit:value`
+- **M1 IN**: 변환·입력 검증·pytest TDD
+- **M1 OUT**: OCP 전면 리팩·설정 외부화·동적 등록·JSON/CSV
+
+## SSOT 우선순위
+
+1. PM 미결 확정값
+2. RED 테스트 (미결 기대값·출력 형태)
+3. `report/02_workbook_scope_verification.md`
+4. `README.md` · `docs/PRD.md`
+5. `UnitConverter.py` (baseline 참고, 정답 SSOT 아님)
+
+## API 계약 (entity)
+
+- 상수: `METER_TO_FEET = 3.28084`, `METER_TO_YARD = 1.09361`
+- `parse_input` · `to_meters` · `convert_all` · `format_output`
+- 오류: 형식·숫자·미지원 단위 → `ValueError` (메시지 포함)
+
+## AI
+
+- 응답·주석 **한국어**, 식별자·pytest 함수명 **영어**
+- git commit/push — 사용자 명시 요청 시만
+- 요청 범위 밖 수정 금지, 최소 diff
+
+## 실행
+
+```bash
+python -m pytest
+python UnitConverter.py
+```
