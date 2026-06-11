@@ -3,7 +3,7 @@
 대상 **Test ID**가 `/green-minimal` **pytest PASS**된 뒤, **승인 스냅샷**(golden)을 생성·검증한다.  
 구현 변경은 golden **재생성** (`UPDATE_GOLDEN=1`) 으로만 반영 — **golden 수동 편집으로 통과 우회 금지**.
 
-**프로젝트:** UnitConverter_09 — Logic Track 기본 · boundary는 Layer만 변경
+**프로젝트:** UnitConverter_08 — Logic Track 기본 · boundary는 Layer만 변경
 
 ## 1. 역할·범위
 
