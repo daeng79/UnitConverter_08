@@ -3,7 +3,7 @@
 **탐지만** 수행한다. 코드·테스트 **수정 금지**, **commit 금지**.  
 후속 수정은 **`/refactor-safe`** (Change Budget 내).
 
-**프로젝트:** UnitConverter_09 — `src/` (Logic) · `UnitConverter.py` (UI) · `tests/`
+**프로젝트:** UnitConverter_08 — `src/` (Logic) · `UnitConverter.py` (UI) · `tests/`
 
 ## 1. 역할·범위
 
