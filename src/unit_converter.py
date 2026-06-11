@@ -1,14 +1,5 @@
-def parse_input(input_str: str) -> tuple[str, float]:
-    ...
+"""호환 shim — 기존 `from unit_converter import …` 유지. 구현은 entity 레이어."""
 
+from entity.unit_converter import convert_all, format_output, parse_input, to_meters
 
-def to_meters(unit: str, value: float) -> float:
-    ...
-
-
-def convert_all(unit: str, value: float) -> dict[str, float]:
-    ...
-
-
-def format_output(unit: str, value: float, converted: dict[str, float]) -> list[str]:
-    ...
+__all__ = ["parse_input", "to_meters", "convert_all", "format_output"]
