@@ -1,6 +1,7 @@
 # UnitConverter_08 — Cursor Rules
 
 ## 프로젝트
+- **공식 명칭**: GitHub·문서·PRD = `UnitConverter_08`. 로컬 작업 디렉터리명(예: `UnitConverter_09`)과 무관.
 - 길이 단위 변환 CLI.
 - 구현 대상: `src/unit_converter.py` (순수 로직). `UnitConverter.py` = CLI baseline(후속 연동).
 - 마일스톤 IN: meter/feet/yard, `unit:value`, pytest. OUT: OCP 전면 리팩·설정 외부화·동적 등록·JSON/CSV.
@@ -92,7 +93,7 @@ format_output(unit: str, value: float, converted: dict[str, float]) -> list[str]
 
 ### GREEN / REFACTOR
 - **GREEN**: `src/` 최소 구현. RED 1건씩.
-- **REFACTOR**: `src/`만. 테스트 변경 금지.
+- **REFACTOR**: `src/` only. 테스트 변경 금지.
 - 수동 실행 데모 1~2회 (**SC-3**). GREEN/REFACTOR 후 **pytest 전체 PASS**.
 
 ## AI
