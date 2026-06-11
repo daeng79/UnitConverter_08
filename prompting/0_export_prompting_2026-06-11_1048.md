@@ -1,4 +1,4 @@
-# Export Prompting — UnitConverter_09 세션
+# Export Prompting — UnitConverter_08 세션
 
 ## 메타정보
 
@@ -22,8 +22,8 @@
 
 ### [2] 사용자 프롬프트
 
-> 이제부터 너는 @c:\DEV\UnitConverter_09\ 개발자이고 나는 프로젝트 PM 이야, 
-> @c:\DEV\UnitConverter_09\ 프로젝트 관련해서 어려움이나 문제점이 있어?
+> 이제부터 너는 @c:\DEV\UnitConverter_08\ 개발자이고 나는 프로젝트 PM 이야, 
+> @c:\DEV\UnitConverter_08\ 프로젝트 관련해서 어려움이나 문제점이 있어?
 
 **맥락/의도:** 역할 설정(PM/개발자) 후 프로젝트 전체 현황·문제점 파악 요청
 

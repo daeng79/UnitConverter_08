@@ -4,7 +4,7 @@
 
 | 항목 | 내용 |
 |------|------|
-| 프로젝트 | UnitConverter_09 |
+| 프로젝트 | UnitConverter_08 |
 | 선행 export | `report/1_export_report_2026-06-11_1049.md` |
 | 보완 | RGIO·SC·Rule·Test Loop — `UnitConverter.py` 계약 대조 리뷰 반영 |
 | 목표 | 코드 손대기 **전** 범위·“맞다” 기준 고정 (구현 아님) |

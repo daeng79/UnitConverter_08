@@ -1,4 +1,4 @@
-# Export Prompting — UnitConverter_09 세션 (워크북)
+# Export Prompting — UnitConverter_08 세션 (워크북)
 
 ## 메타정보
 
