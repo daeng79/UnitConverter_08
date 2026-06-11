@@ -13,10 +13,12 @@
 
 | 항목 | 상태 |
 |------|------|
+| 프로젝트 | **UnitConverter_08** (GitHub·문서 공식명) |
 | 마일스톤 | **M1** — 기본 변환 + TDD |
 | 순수 로직 (`src/unit_converter.py`) | stub (미구현) |
 | CLI (`UnitConverter.py`) | 36줄 프로토타입 baseline |
 | pytest | RED R1 1건 작성 (R2~R6 미작성) |
+| ARRR Cursor Commands | `red-test-plan` · `red-skeleton` · `tdd-red` · `green-minimal` · `golden-master` · `refactor-smell` |
 | PM 미결 | 출력 반올림·줄 수, 음수 정책 |
 
 완료 기준: `python -m pytest` 전체 PASS (GREEN/REFACTOR 후)
@@ -28,6 +30,7 @@
 - 사용자가 입력한 길이(`단위:값`)를 기반으로 meter / feet / yard로 변환해 출력합니다.
 - 변환 로직은 `src/unit_converter.py`에, CLI 진입점은 `UnitConverter.py`에 분리합니다.
 - **pytest RED → GREEN → REFACTOR** 순서로 구현·검증합니다.
+- 생성형 AI·Cursor 슬래시 명령어로 ARRR 단계(설계 → RED → GREEN → Refine)를 지원합니다.
 
 ---
 
@@ -59,6 +62,9 @@ deactivate
 python -m pytest
 python -m pytest -v
 
+# 단일 RED 테스트
+python -m pytest tests/test_unit_converter.py::test_convert_all_meter_to_feet_and_yard -v
+
 # CLI (프로토타입 baseline)
 python UnitConverter.py
 ```
@@ -68,16 +74,19 @@ python UnitConverter.py
 ## 프로젝트 구조
 
 ```
-UnitConverter_08/
+UnitConverter_08/          # GitHub 저장소명; 로컬 clone 폴더는 UnitConverter_09 등 가능
 ├── src/
-│   └── unit_converter.py   # 순수 변환 로직 (구현 대상)
+│   ├── unit_converter.py   # 순수 변환 로직 (구현 대상)
+│   └── constants.py          # 비즈니스 상수 SSOT (GREEN 시 생성)
 ├── tests/
 │   └── test_unit_converter.py
-├── UnitConverter.py          # CLI 진입점 (baseline, 후속 연동)
-├── doc/PRD.md                # 제품 요구사항 문서
+├── UnitConverter.py            # CLI 진입점 (baseline, 후속 연동)
+├── doc/PRD.md                  # 제품 요구사항 문서
 ├── report/02_workbook_scope_verification.md
-├── .cursorrules              # TDD·API 규칙
-└── pyproject.toml
+├── .cursor/
+│   └── commands/               # ARRR·TDD 슬래시 명령어
+├── .cursorrules                # TDD·API 규칙
+└── pyproject.toml              # pythonpath=["src"]
 ```
 
 ---
@@ -119,10 +128,14 @@ meter:2.5
 
 ### 비즈니스 로직 (확정)
 
-- `1 meter = 3.28084 feet`
-- `1 meter = 1.09361 yard`
+| 상수 | 값 |
+|------|-----|
+| `METER_TO_FEET` | `3.28084` |
+| `METER_TO_YARD` | `1.09361` |
+
 - **모든 변환은 meter 중간값을 경유**합니다.
 - feet ↔ yard 비율도 meter 기준으로 계산합니다.
+- GREEN 단계에서 상수는 `src/constants.py`에만 둡니다 (함수 내부 매직넘버 금지).
 
 ### API (`src/unit_converter.py`)
 
@@ -133,7 +146,7 @@ convert_all(unit, value) -> dict[str, float]   # keys: meter, feet, yard
 format_output(unit, value, converted) -> list[str]
 ```
 
-형식·숫자·미지원 단위 오류 시 `ValueError`(메시지 포함).
+형식·숫자·미지원 단위 오류 시 `ValueError`(메시지 포함). E001~E005 에러코드는 사용하지 않습니다.
 
 ---
 
@@ -144,21 +157,43 @@ format_output(unit, value, converted) -> list[str]
 1. PM 미결 확정값
 2. RED 테스트 (`tests/`)
 3. `report/02_workbook_scope_verification.md`
-4. 본 README (비즈니스 비율·기본 요구)
-5. `UnitConverter.py` (baseline 참고, 정답 SSOT 아님)
+4. [`doc/PRD.md`](doc/PRD.md)
+5. 본 README (비즈니스 비율·기본 요구)
+6. `UnitConverter.py` (baseline 참고, 정답 SSOT 아님)
+
+### TDD 사이클
+
+| Phase | 수정 범위 | 완료 조건 |
+|-------|----------|----------|
+| **RED** | `tests/` only | 추가 테스트 **FAIL** |
+| **GREEN** | `src/` 최소 구현 | 직전 RED 1건 **PASS** |
+| **REFACTOR** | `src/` only | 전체 테스트 **PASS** 유지 |
+
+### ARRR Cursor Commands (M1 파이프라인)
+
+| Command | ARRR 단계 | 역할 |
+|---------|-----------|------|
+| [`red-test-plan`](.cursor/commands/red-test-plan.md) | Ask RED ③ | C2C·테스트 플랜 (파일 생성 없음) |
+| [`red-skeleton`](.cursor/commands/red-skeleton.md) | Ask RED ④ | `pytest.fail` 스켈레톤 (`tests/` only) |
+| [`tdd-red`](.cursor/commands/tdd-red.md) | RED ⑤ | assert·도메인 호출 RED |
+| [`green-minimal`](.cursor/commands/green-minimal.md) | Respond GREEN | RED 1묶음당 `src/` 최소 구현 |
+| [`golden-master`](.cursor/commands/golden-master.md) | GREEN+ | Approval Test · golden 스냅샷 |
+| [`refactor-smell`](.cursor/commands/refactor-smell.md) | Refine ⑦ | 코드 스멜 탐지 (수정 없음) |
+
+권장 순서: `red-test-plan` → `red-skeleton` → `tdd-red` → `green-minimal` → (선택) `golden-master` → `refactor-smell`
 
 ### RED 테스트 (R1 ~ R6)
 
-| ID | 시나리오 | 상태 |
-|----|----------|------|
-| R1 | `meter:2.5` → feet/yard 변환·반올림 | 작성됨 |
-| R2 | `feet:3.28084` → 역·교차 변환 | 미작성 |
-| R3 | `meter:-2.5` → 음수 정책 | 미작성 |
-| R4 | `invalid` → 형식 오류 | 미작성 |
-| R5 | `cubit:1` → 미지원 단위 | 미작성 |
-| R6 | `meter:2.5` → 출력 줄·포맷 | 미작성 |
+| ID | 시나리오 | 대상 API | 상태 |
+|----|----------|----------|------|
+| R1 | `meter:2.5` → feet/yard 변환·반올림 | `convert_all` | **작성됨** |
+| R2 | `feet:3.28084` → meter ≈ 1, 교차 변환 | `to_meters` | 미작성 |
+| R3 | `meter:-2.5` → 음수 정책 | `parse_input` | 미작성 `[미결: PM]` |
+| R4 | `invalid` → 형식 오류 | `parse_input` | 미작성 |
+| R5 | `cubit:1` → 미지원 단위 | `parse_input` | 미작성 |
+| R6 | `meter:2.5` → 출력 줄·포맷 | `format_output` | 미작성 `[미결: PM]` |
 
-RED Phase 가이드: [`.cursor/commands/tdd-red.md`](.cursor/commands/tdd-red.md)
+SC-3 목표: R1~R6 각 1 test (≥6건) 선행 후 GREEN.
 
 ---
 
@@ -200,7 +235,7 @@ RED Phase 가이드: [`.cursor/commands/tdd-red.md`](.cursor/commands/tdd-red.md
 | [`doc/PRD.md`](doc/PRD.md) | 제품 요구사항·범위·로드맵 |
 | [`report/02_workbook_scope_verification.md`](report/02_workbook_scope_verification.md) | SC-1~3, Test Loop |
 | [`.cursorrules`](.cursorrules) | TDD Phase·API 계약 |
-| [`.cursor/commands/tdd-red.md`](.cursor/commands/tdd-red.md) | RED Phase 실행 가이드 |
+| [`.cursor/commands/`](.cursor/commands/) | ARRR·TDD 슬래시 명령어 모음 |
 
 ---
 
@@ -214,8 +249,8 @@ RED Phase 가이드: [`.cursor/commands/tdd-red.md`](.cursor/commands/tdd-red.md
 2. **범위·검증 계약 고정** (0.5시간)
    - in/out 확정, PM 미결 항목 정리 (`doc/PRD.md`, `report/02`)
 3. **TDD — RED → GREEN → REFACTOR** (2.5시간)
-   - RED 6건 (변환·역변환·형식·단위·음수·출력)
-   - `src/unit_converter.py` 최소 구현 → CLI 연동
+   - `/red-test-plan`으로 C2C 설계 → `/red-skeleton`·`/tdd-red`로 RED 6건
+   - `/green-minimal`로 `src/unit_converter.py` 최소 구현 → CLI 연동
 4. **추가 요구사항 (M2)** (2시간)
    - OCP/SRP, 설정 외부화, 동적 등록, 출력 포맷 + TC
 5. **회고 및 발표** (0.5시간)
