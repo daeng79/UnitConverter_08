@@ -1,0 +1,107 @@
+# UnitConverter_09 — Cursor Rules
+
+## 프로젝트
+- 길이 단위 변환 CLI.
+- 구현 대상: `src/unit_converter.py` (순수 로직). `UnitConverter.py` = CLI baseline(후속 연동).
+- 마일스톤 IN: meter/feet/yard, `unit:value`, pytest. OUT: OCP 전면 리팩·설정 외부화·동적 등록·JSON/CSV.
+
+## 정의
+- **RED**: 실패하는 테스트 1시나리오(1 test 함수) 추가. 완료 = `pytest`에서 해당 테스트 **FAIL**.
+- **GREEN**: 직전 RED 1건을 통과시키는 최소 구현. 완료 = 해당 테스트 **PASS**.
+- **REFACTOR**: GREEN 유지하며 `src/` 구조 개선. 완료 = 전체 테스트 PASS 유지.
+- **Phase 선언**: TDD 작업 시 응답 **첫 줄** `[Phase: RED|GREEN|REFACTOR]` — 생략·변형 금지.
+- **지원 단위**: `meter`, `feet`, `yard`. 입력 포맷: `unit:value`(콜론 1개).
+- **convert_all 키**: `{"meter", "feet", "yard"}`.
+- **오류 계약**: 형식·숫자·미지원 단위 → `ValueError`(메시지 포함). dict status API 미사용.
+
+## SSOT (우선순위)
+1. PM 미결 확정값
+2. **RED 테스트** (미결 항목의 기대값·출력 형태)
+3. **`report/02_workbook_scope_verification.md`** — SC-2 “맞다” 기준 5항·Test Loop
+4. **`README.md`** — 요구사항·비즈니스 비율
+5. **`UnitConverter.py`** — 현재 baseline 참고(정답 SSOT 아님)
+
+## 성공 조건 (SC-1~3)
+마일스톤 완료 판정. 상세·Mom Test traceability → `report/02_workbook_scope_verification.md`.
+
+| SC | 성공 조건 | 완료 판정 |
+|----|----------|----------|
+| **SC-1** | 코드 작업 전 **마일스톤 in/out** 문서화. baseline 항목마다 **있음 / gap / 범위 외** 표시 | in/out 표 존재 + PM 미결 in/out 확정 또는 `[미결]` 명시 |
+| **SC-2** | 변환 “맞다” 기준 **5항** 고정 문서화. PM 미결 항목은 `[미결]` | 5항 전부 문장으로 존재. 확정 항목은 기대값·에러 계약과 일치 |
+| **SC-3** | 변환·입력·출력 **계약 변경 전** pytest **RED ≥6** 선행. 수동은 **데모 1~2회** | R1~R6 각 1 test·의도 FAIL(또는 incomplete). GREEN 후 전체 PASS |
+
+### SC-1 — in/out (초안 baseline)
+| 구분 | 항목 | 상태 |
+|------|------|------|
+| IN | `unit:value`, meter/feet/yard 변환 | **있음** |
+| IN | 형식·숫자·미지원 단위 에러 | **있음** |
+| IN | 음수 정책 | **미결** |
+| IN | 출력 반올림·줄 수 | **미결** |
+| IN | pytest (변환·입력·출력) | **없음** |
+| OUT | OCP/SRP, 설정 외부화, 동적 등록, JSON/CSV | **범위 외** |
+
+### SC-2 — “맞다” 기준 5항
+1. **meter 기준** — 모든 변환 meter 중간값 경유 → **확정**
+2. **README 비율** — `1m=3.28084ft`, `1m=1.09361yd` → **확정**
+3. **출력 반올림** — 자릿수·방식 → **[미결] PM**
+4. **출력 형태** — 줄 수(2 vs 3), 입력 단위 포함, README 정합 → **[미결] PM**
+5. **입력 검증** — 형식/미지원 단위=에러; 음수 → 형식·단위 **확정**, 음수 **[미결] PM**
+
+### SC-3 — RED R1~R6 (Test Loop)
+R1 `meter:2.5` 변환·반올림 · R2 `feet:3.28084` 역·교차 · R3 `meter:-2.5` 음수 · R4 형식 오류 · R5 미지원 단위 · R6 출력 형태.
+
+- **SC-1·SC-2** 미충족 시 `SCOPE_BEFORE_CODE` — GREEN·REFACTOR·CLI 연동 금지.
+- Phase 완료(RED/GREEN/REFACTOR) ≠ SC 완료. **마일스톤 종료 = SC-1~3 동시 충족.**
+
+## API (`src/unit_converter.py`)
+상수 (확정): `METER_TO_FEET = 3.28084`, `METER_TO_YARD = 1.09361` — meter 중간값 경유.
+
+```
+parse_input(input_str: str) -> tuple[str, float]
+to_meters(unit: str, value: float) -> float
+convert_all(unit: str, value: float) -> dict[str, float]   # keys: meter, feet, yard
+format_output(unit: str, value: float, converted: dict[str, float]) -> list[str]
+```
+
+## incomplete (PM 미결)
+항목: (1) 마일스톤 in/out (2) 반올림·출력 줄 수(2 vs 3) (3) 음수 정책.
+
+| 상태 | 허용 | 금지 |
+|------|------|------|
+| **incomplete** | RED에 `pytest.mark.xfail` 없이 **명시적 기대값 + `# [미결: PM]` 주석** | skip·xfail·assert 완화 |
+| **incomplete** | `tests/`에 실패 테스트 작성 | `src/`·`UnitConverter.py` 구현 |
+| **incomplete** | PM/사용자 확인 요청 | 기대값·정책 추측 구현 |
+
+- 미결 존재 시 **SCOPE_BEFORE_CODE**: GREEN·REFACTOR·CLI 연동 금지.
+- incomplete RED 완료 = 테스트가 **의도대로 FAIL** + `[미결]` 주석·시나리오 명확. PASS 불필요.
+
+## TDD
+- 사이클: **RED → GREEN → REFACTOR** 엄수. Phase와 수정 파일 불일치 시 사용자 확인.
+
+### RED — 허용
+- `tests/` 수정 (`test_*.py`, `conftest.py`, 헬퍼).
+- RED 1회 = **test 함수 1개 · 시나리오 1개 · assert ≥1**.
+- 목표 ≥6 — **SC-3** R1~R6.
+
+### RED — 금지
+- `src/`, `UnitConverter.py`, `pyproject.toml`, `.cursorrules`, `README.md`, `report/` 수정.
+- GREEN/REFACTOR 선행( stub 구현·리팩터·CLI 연동).
+- 통과 목적 코드·assert 없는 빈 테스트·여러 시나리오 뭉친 1 RED.
+- assert 완화·삭제·`pytest.skip`·`pytest.mark.xfail`.
+- 수동 5~7회 실행·“데모 OK”로 RED 대체·범위 단정.
+
+### GREEN / REFACTOR
+- **GREEN**: `src/` 최소 구현. RED 1건씩.
+- **REFACTOR**: `src/`만. 테스트 변경 금지.
+- 수동 실행 데모 1~2회 (**SC-3**). GREEN/REFACTOR 후 **pytest 전체 PASS**.
+
+## AI
+- **한국어** 응답·주석. 식별자·pytest 함수명은 영어.
+- **git commit / push** — 사용자 명시 요청 시만. hook 우회(`--no-verify` 등) 금지.
+- 요청 범위 밖 파일 생성·수정 금지. 최소 diff.
+
+## 실행
+```bash
+python -m pytest
+python UnitConverter.py
+```
